@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  push:
+    paths: ["backend/**", ".github/workflows/backend-ci.yml"]
+  pull_request:
+    paths: ["backend/**"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - name: Install deps
+        run: cd backend && uv sync
+      - name: Ruff lint
+        run: cd backend && uv run ruff check app tests
+      - name: Ruff format
+        run: cd backend && uv run ruff format --check app tests
+      - name: mypy
+        run: cd backend && uv run mypy app
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=3s --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install deps
+        run: cd backend && uv sync
+      - name: Run tests
+        run: cd backend && uv run pytest tests/ -v --cov=app --cov-report=xml
+        env:
+          REDIS_URL: redis://localhost:6379/0
+          COSMOS_ENDPOINT: ""
+          ENVIRONMENT: test
+      - uses: codecov/codecov-action@v4
+        with:
+          files: backend/coverage.xml

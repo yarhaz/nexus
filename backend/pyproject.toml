@@ -1,0 +1,63 @@
+[project]
+name = "nexus-backend"
+version = "0.1.0"
+description = "Nexus IDP Backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0,<0.116",
+    "uvicorn[standard]>=0.34.0,<0.35",
+    "pydantic>=2.10.0,<2.11",
+    "pydantic-settings>=2.7.0,<2.8",
+    "gremlinpython>=3.7.0,<3.8",
+    "redis[hiredis]>=5.2.0,<5.3",
+    "celery[redis]>=5.4.0,<5.5",
+    "httpx>=0.28.0,<0.29",
+    "azure-identity>=1.19.0,<1.20",
+    "azure-keyvault-secrets>=4.9.0,<4.10",
+    "azure-mgmt-resource>=23.0.0,<24",
+    "structlog>=24.4.0,<25",
+    "opentelemetry-sdk>=1.29.0,<1.30",
+    "opentelemetry-instrumentation-fastapi>=0.50b0",
+    "azure-monitor-opentelemetry-exporter>=1.0.0",
+    "tenacity>=9.0.0,<10",
+    "pyyaml>=6.0.0,<7",
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.9.0,<0.10",
+    "mypy>=1.13.0,<1.14",
+    "pytest>=8.3.0,<8.4",
+    "pytest-asyncio>=0.25.0,<0.26",
+    "pytest-cov>=6.0.0",
+    "factory-boy>=3.3.0,<3.4",
+    "types-pyyaml",
+    "types-redis",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --cov=app --cov-report=term-missing"
+
+[tool.coverage.run]
+omit = ["tests/*", "*/migrations/*"]
